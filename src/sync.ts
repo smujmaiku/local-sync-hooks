@@ -5,23 +5,28 @@
  */
 
 import {
-	useEffect, useState, useCallback, useMemo,
+	useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction
 } from 'react';
-import localforage from 'localforage';
+import * as localforage from 'localforage';
 
 const PACKAGE_NAME = 'someSyncHooks';
 
 const store = localforage.createInstance({ name: PACKAGE_NAME });
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export function useSyncState(key, defaultState) {
+/**
+ * Use sync state
+ * @param key 
+ * @param defaultState 
+ */
+export function useSyncState<T = unknown>(key: string, defaultState: T): [T, Dispatch<SetStateAction<T>>, boolean] {
 	const channelId = `${PACKAGE_NAME}:${key}`;
 
-	const [state, setState] = useState(defaultState);
-	const [postMessage, setPostMessage] = useState(false);
-	const [remoteTime, setRemoteTime] = useState(0);
-	const [stateTime, setStateTime] = useState(0);
+	const [state, setState] = useState<T>(defaultState);
+	const [postMessage, setPostMessage] = useState<boolean>(false);
+	const [remoteTime, setRemoteTime] = useState<number>(0);
+	const [stateTime, setStateTime] = useState<number>(0);
 
 	const ready = stateTime > 0;
 	const needGet = remoteTime >= stateTime;
@@ -29,12 +34,14 @@ export function useSyncState(key, defaultState) {
 	const channel = useMemo(() => new BroadcastChannel(channelId), [channelId]);
 
 	useEffect(() => {
-		channel.onmessage = ({ data }) => {
+		const handleMessage = ({ data }: MessageEvent<number>) => {
 			setRemoteTime((t) => Math.max(t, data));
 		};
 
+		channel.addEventListener('message', handleMessage);
+
 		return () => {
-			channel.onmessage = undefined;
+			channel.removeEventListener('message', handleMessage);
 			channel.close();
 		};
 	}, [channel]);
@@ -46,7 +53,7 @@ export function useSyncState(key, defaultState) {
 	}, []);
 
 	useEffect(() => {
-		if (!postMessage) return () => {};
+		if (!postMessage) return () => { return; };
 
 		let cancel;
 		(async () => {
@@ -66,10 +73,10 @@ export function useSyncState(key, defaultState) {
 	}, [channel, key, state, stateTime, postMessage]);
 
 	useEffect(() => {
-		if (!needGet) return () => {};
+		if (!needGet) return () => { return; };
 
 		// Keep this to trigger start over on stateTime change
-		if (stateTime < 0) return () => {};
+		if (stateTime < 0) return () => { return; };
 
 		let cancel;
 		(async () => {
@@ -85,7 +92,7 @@ export function useSyncState(key, defaultState) {
 			if (cancel) return;
 
 			if (exists) {
-				setState(data);
+				setState(data as T);
 			}
 			setStateTime(now);
 		})();
@@ -98,8 +105,14 @@ export function useSyncState(key, defaultState) {
 	return [state, sendState, ready];
 }
 
-export function useSyncReducer(key, reducer, defaultState) {
-	const [state, setState, ready] = useSyncState(key, defaultState);
+/**
+ * Use sync reducer
+ * @param key 
+ * @param reducer 
+ * @param defaultState 
+ */
+export function useSyncReducer<T = unknown, A = unknown>(key: string, reducer: (state: T, action: A) => T, defaultState: T): [T, (action: A) => void, boolean] {
+	const [state, setState, ready] = useSyncState<T>(key, defaultState);
 
 	const sendDispatch = useCallback((action) => {
 		setState((s) => reducer(s, action));
