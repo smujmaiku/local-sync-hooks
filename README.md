@@ -14,7 +14,7 @@ Some sync hooks can replicate your state across your many browser tabs!
 
 ### useSyncState
 
-Like `useState` but it will retain state on reload and share between tabs.
+Like `useState` but it will restore state on reload and share between tabs.
 
 ```js
 const [state, setState, ready] = useSyncState('key', { some: 'state' });
@@ -22,7 +22,7 @@ const [state, setState, ready] = useSyncState('key', { some: 'state' });
 
 ### useSyncReducer
 
-Like `useReducer` but it will retain state on reload and share between tabs.
+Like `useReducer` but it will restore state on reload and share between tabs.
 
 ```js
 const [state, dispatch, ready] = useSyncReducer('key', reducer, { some: 'state' });

@@ -11,7 +11,7 @@
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
 		"ecmaVersion": 2020,
-		"sourceType": "module",
+		"sourceType": "module"
 	},
 	"settings": {
 		"import/resolver": {
@@ -24,6 +24,10 @@
 	},
 	"extends": [
 		"plugin:@typescript-eslint/recommended"
+	],
+	"plugins": [
+		"@typescript-eslint",
+		"react-hooks"
 	],
 	"rules": {
 		"indent": [
@@ -38,7 +42,9 @@
 			"WithStatement"
 		],
 		"no-multiple-empty-lines": "warn",
-		"import/no-named-as-default": 0
+		"import/no-named-as-default": 0,
+		"react-hooks/rules-of-hooks": "error",
+		"react-hooks/exhaustive-deps": "warn"
 		// "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
 	}
 }

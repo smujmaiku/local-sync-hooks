@@ -34,6 +34,9 @@ export function useSyncState<T = unknown>(key: string, defaultState: T): [T, Dis
 	const channel = useMemo(() => new BroadcastChannel(channelId), [channelId]);
 
 	useEffect(() => {
+		setState(defaultState);
+		setStateTime(0);
+
 		const handleMessage = ({ data }: MessageEvent<number>) => {
 			setRemoteTime((t) => Math.max(t, data));
 		};
@@ -44,6 +47,8 @@ export function useSyncState<T = unknown>(key: string, defaultState: T): [T, Dis
 			channel.removeEventListener('message', handleMessage);
 			channel.close();
 		};
+		// Ignore defaultState changes like useState unless the channel changes too
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [channel]);
 
 	const sendState = useCallback((data) => {
