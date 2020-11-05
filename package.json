@@ -1,6 +1,6 @@
 {
   "name": "some-sync-hooks",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Some Sync hooks",
   "main": "lib/sync.js",
   "types": "lib/sync.d.ts",

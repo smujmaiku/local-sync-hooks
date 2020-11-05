@@ -28,6 +28,15 @@ export function useSyncState<T = unknown>(key: string, defaultState: T): [T, Dis
 	const [remoteTime, setRemoteTime] = useState<number>(0);
 	const [stateTime, setStateTime] = useState<number>(0);
 
+	// Reset state on key change
+	useEffect(() => {
+		setState(defaultState);
+		setRemoteTime(0);
+		setStateTime(0);
+		// Ignore defaultState changes like useState unless the key changes too
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [key])
+
 	const ready = stateTime > 0;
 	const needGet = remoteTime >= stateTime;
 
