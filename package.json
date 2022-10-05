@@ -68,6 +68,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.28.0",
     "eslint-plugin-react-hooks": "^4.3.0",
+    "gh-pages": "^4.0.0",
     "jest": "^27.4.7",
     "jest-expect-json": "^0.1.1",
     "jest-mock": "^27.5.1",
