@@ -16,6 +16,6 @@ jobs:
       - run: npm i
       - run: npm run build
       - working-directory: build
-        run: npm publish --dry-run --access public
+        run: npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}} # https://www.npmjs.com/settings/$username/tokens
