@@ -1,6 +1,7 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import React from 'react'
-import { useSyncState } from './sync'
+import React from 'react';
+import { useSyncState } from './sync';
 
 interface InputProps {
 	name: string;
@@ -8,14 +9,20 @@ interface InputProps {
 }
 
 function Input(props: InputProps): JSX.Element {
-	const [value, setValue] = useSyncState<string>(props.name, props.initialValue)
+	const { name, initialValue } = props;
 
-	return (<div>
-		<input
-			value={value}
-			onChange={({ target }) => { setValue(target.value) }}
-		/>
-	</div>)
+	const [value, setValue] = useSyncState<string>(name, initialValue);
+
+	return (
+		<div>
+			<input
+				value={value}
+				onChange={({ target }) => {
+					setValue(target.value);
+				}}
+			/>
+		</div>
+	);
 }
 
 export default {
@@ -26,7 +33,9 @@ export default {
 const Template: ComponentStory<typeof Input> = (args) => (
 	<section>
 		<p>
-			<a href="#" target="_blank">Duplicate this window</a>
+			<a href="#another" target="_blank">
+				Duplicate this window
+			</a>
 			{' to see each input synchronized'}
 		</p>
 		<Input {...args} />

@@ -4,17 +4,10 @@
  * MIT Licensed
  */
 
-import createSyncHooks from "./create";
+import createSyncHooks from './create';
 
 const PACKAGE_NAME = 'localSyncHooks';
 
-const {
-	useSyncState,
-	useSyncReducer,
-} = createSyncHooks(PACKAGE_NAME);
+const { useSyncState, useSyncReducer } = createSyncHooks(PACKAGE_NAME);
 
-export {
-	useSyncState,
-	useSyncReducer,
-	createSyncHooks,
-};
+export { useSyncState, useSyncReducer, createSyncHooks };

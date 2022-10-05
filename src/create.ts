@@ -5,37 +5,62 @@
  */
 
 import {
-	useEffect, useState, useCallback, useMemo, Dispatch, SetStateAction
+	useEffect,
+	useState,
+	useCallback,
+	useMemo,
+	Dispatch,
+	SetStateAction,
 } from 'react';
 import * as localforage from 'localforage';
 
+function noop(): void {
+	// noop
+}
+
 export type SyncReducerT<T, A> = (state: T, action: A) => T;
 
-export type UseSyncStateT = <T>(key: string, defaultState: T) => [T, Dispatch<SetStateAction<T>>, boolean];
-export type UseSyncReducerT = <T, A>(key: string, reducer: SyncReducerT<T, A>, defaultState: T) => [T, (action: A) => void, boolean];
+export type UseSyncStateT = <T>(
+	key: string,
+	defaultState: T
+) => [T, Dispatch<SetStateAction<T>>, boolean];
+export type UseSyncReducerT = <T, A>(
+	key: string,
+	reducer: SyncReducerT<T, A>,
+	defaultState: T
+) => [T, (action: A) => void, boolean];
 export type CreateSyncHooksI = {
-	useSyncState: UseSyncStateT,
-	useSyncReducer: UseSyncReducerT,
-}
+	useSyncState: UseSyncStateT;
+	useSyncReducer: UseSyncReducerT;
+};
 
 const stores: Record<string, LocalForage> = {};
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = (ms: number) =>
+	new Promise((resolve) => {
+		setTimeout(resolve, ms);
+	});
 
 /**
  * Create a set of sync hooks
  * @param name Channel and LocalForage name
  */
-export default function createSyncHooks(name: string): CreateSyncHooksI;
+export function createSyncHooks(name: string): CreateSyncHooksI;
 
 /**
  * Create a set of sync hooks
  * @param name Channel name
  * @param store LocalForage instance
  */
-export default function createSyncHooks(name: string, store: LocalForage): CreateSyncHooksI;
+export function createSyncHooks(
+	name: string,
+	store: LocalForage
+): CreateSyncHooksI;
 
-export default function createSyncHooks(name: string, store: LocalForage | undefined = undefined): CreateSyncHooksI {
+export default function createSyncHooks(
+	name: string,
+	store: LocalForage | undefined = undefined
+): CreateSyncHooksI {
 	if (!store) {
 		const newStore = stores[name] || localforage.createInstance({ name });
 		stores[name] = newStore;
@@ -44,11 +69,10 @@ export default function createSyncHooks(name: string, store: LocalForage | undef
 
 	/**
 	 * Use sync state
-	 * @param key 
-	 * @param defaultState 
+	 * @param key
+	 * @param defaultState
 	 */
 	const useSyncState: UseSyncStateT = <T>(key: string, defaultState: T) => {
-		store
 		const channelId = `${name}:${key}`;
 
 		const [state, setState] = useState<T>(defaultState);
@@ -63,7 +87,7 @@ export default function createSyncHooks(name: string, store: LocalForage | undef
 			setStateTime(0);
 			// Ignore defaultState changes like useState unless the key changes too
 			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [key])
+		}, [key]);
 
 		const ready = stateTime > 0;
 		const needGet = remoteTime >= stateTime;
@@ -95,7 +119,7 @@ export default function createSyncHooks(name: string, store: LocalForage | undef
 		}, []);
 
 		useEffect(() => {
-			if (!postMessage) return () => { return; };
+			if (!postMessage) return noop;
 
 			let cancel;
 			(async () => {
@@ -115,10 +139,10 @@ export default function createSyncHooks(name: string, store: LocalForage | undef
 		}, [channel, key, state, stateTime, postMessage]);
 
 		useEffect(() => {
-			if (!needGet) return () => { return; };
+			if (!needGet) return noop;
 
 			// Keep this to trigger start over on stateTime change
-			if (stateTime < 0) return () => { return; };
+			if (stateTime < 0) return noop;
 
 			let cancel;
 			(async () => {
@@ -145,26 +169,33 @@ export default function createSyncHooks(name: string, store: LocalForage | undef
 		}, [key, stateTime, needGet]);
 
 		return [state, sendState, ready];
-	}
+	};
 
 	/**
 	 * Use sync reducer
-	 * @param key 
-	 * @param reducer 
-	 * @param defaultState 
+	 * @param key
+	 * @param reducer
+	 * @param defaultState
 	 */
-	const useSyncReducer: UseSyncReducerT = <T = unknown, A = unknown>(key: string, reducer: SyncReducerT<T, A>, defaultState: T) => {
+	const useSyncReducer: UseSyncReducerT = <T = unknown, A = unknown>(
+		key: string,
+		reducer: SyncReducerT<T, A>,
+		defaultState: T
+	) => {
 		const [state, setState, ready] = useSyncState<T>(key, defaultState);
 
-		const sendDispatch = useCallback((action) => {
-			setState((s: T) => reducer(s, action));
-		}, [reducer, setState]);
+		const sendDispatch = useCallback(
+			(action) => {
+				setState((s: T) => reducer(s, action));
+			},
+			[reducer, setState]
+		);
 
 		return [state, sendDispatch, ready];
-	}
+	};
 
 	return {
 		useSyncState,
 		useSyncReducer,
-	}
+	};
 }
