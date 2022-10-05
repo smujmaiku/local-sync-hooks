@@ -1,50 +1,51 @@
 {
 	"env": {
-		"browser": true,
-		"es6": true,
-		"node": true,
-		"jest": true
+	  "browser": true,
+	  "es2021": true,
+	  "node": true,
+	  "jest": true
 	},
-	"globals": {
-		"browser": false
-	},
+	"plugins": [
+	  "react",
+	  "@typescript-eslint",
+	  "prettier"
+	],
+	"extends": [
+	  "plugin:react/recommended",
+	  "airbnb",
+	  "airbnb-typescript",
+	  "airbnb/hooks",
+	  "plugin:prettier/recommended"
+	],
 	"parser": "@typescript-eslint/parser",
 	"parserOptions": {
-		"ecmaVersion": 2020,
-		"sourceType": "module"
+	  "project": "./tsconfig.eslint.json",
+	  "sourceType": "module",
+	  "ecmaVersion": "latest",
+	  "ecmaFeatures": {
+		"jsx": true
+	  }
 	},
 	"settings": {
-		"import/resolver": {
-			"node": {
-				"paths": [
-					"src"
-				]
-			}
-		}
+	  "import/extensions": [
+		".ts",
+		".tsx"
+	  ]
 	},
-	"extends": [
-		"plugin:@typescript-eslint/recommended"
-	],
-	"plugins": [
-		"@typescript-eslint",
-		"react-hooks"
-	],
 	"rules": {
-		"indent": [
-			2,
-			"tab"
-		],
-		"no-tabs": 0,
-		"no-restricted-syntax": [
-			"error",
-			"ForInStatement",
-			"LabeledStatement",
-			"WithStatement"
-		],
-		"no-multiple-empty-lines": "warn",
-		"import/no-named-as-default": 0,
-		"react-hooks/rules-of-hooks": "error",
-		"react-hooks/exhaustive-deps": "warn"
-		// "import/no-extraneous-dependencies": ["error", {"devDependencies": true}],
+	  "@typescript-eslint/no-explicit-any": 2,
+	  "react/function-component-definition": 0,
+	  "react/require-default-props": 0,
+	  "react/jsx-props-no-spreading": 1,
+	  "no-restricted-syntax": [
+		"error",
+		"ForInStatement",
+		"LabeledStatement",
+		"WithStatement"
+	  ],
+	  "no-continue": 0,
+	  "@typescript-eslint/require-await": 0,
+	  "import/no-named-as-default": 0,
+	  "react/jsx-indent": 0
 	}
-}
+  }

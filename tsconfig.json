@@ -1,10 +1,13 @@
 {
 	"compilerOptions": {
-		"target": "es2017",
-		"module": "commonjs",
+		"module": "esnext",
+		"target": "es2020",
+		"lib": ["es2020", "dom"],
+		"jsx": "preserve",
+		"moduleResolution": "node",
 		"strict": true,
 		"declaration": true,
-		"outDir": "./lib"
+		"outDir": "./build"
 	},
 	"include": [
 		"./src"
@@ -12,7 +15,8 @@
 	"exclude": [
 		"node_modules",
 		"coverage",
-		"lib",
+		"build",
+		"**/*.stories.*",
 		"**/*.test.*"
 	]
 }
