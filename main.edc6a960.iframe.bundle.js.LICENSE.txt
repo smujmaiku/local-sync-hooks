@@ -1,0 +1,7 @@
+/*!
+ * Local Sync Hooks <https://github.com/smujmaiku/local-sync-hooks>
+ * Copyright(c) 2022 Michael Szmadzinski
+ * MIT Licensed
+ */
+
+/*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */
