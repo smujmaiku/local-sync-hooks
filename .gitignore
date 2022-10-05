@@ -1,5 +1,6 @@
 # build
 build
+storybook-static
 
 # npm
 node_modules
