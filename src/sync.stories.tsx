@@ -11,12 +11,13 @@ interface InputProps {
 function Input(props: InputProps): JSX.Element {
 	const { name, initialValue } = props;
 
-	const [value, setValue] = useSyncState<string>(name, initialValue);
+	const [value, setValue, ready] = useSyncState<string>(name, initialValue);
 
 	return (
 		<div>
 			<input
-				value={value}
+				disabled={!ready}
+				value={ready ? value : '...'}
 				onChange={({ target }) => {
 					setValue(target.value);
 				}}
