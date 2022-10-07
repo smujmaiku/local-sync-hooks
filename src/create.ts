@@ -4,17 +4,12 @@
  * MIT Licensed
  */
 
-import {
-	useEffect,
-	useState,
-	useCallback,
-	useMemo,
-	Dispatch,
-	SetStateAction,
-} from 'react';
+import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import * as localforage from 'localforage';
 
-function noop(): void {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
+function noop(...args: any): void {
 	// noop
 }
 
@@ -73,6 +68,9 @@ export default function createSyncHooks(
 	 * @param defaultState
 	 */
 	const useSyncState: UseSyncStateT = <T>(key: string, defaultState: T) => {
+		const defaultStateRef = useRef<T>(defaultState);
+		defaultStateRef.current = defaultState;
+
 		const channelId = `${name}:${key}`;
 
 		const [state, setState] = useState<T>(defaultState);
@@ -80,22 +78,29 @@ export default function createSyncHooks(
 		const [remoteTime, setRemoteTime] = useState<number>(0);
 		const [stateTime, setStateTime] = useState<number>(0);
 
-		// Reset state on key change
-		useEffect(() => {
-			setState(defaultState);
-			setRemoteTime(0);
-			setStateTime(0);
-			// Ignore defaultState changes like useState unless the key changes too
-			// eslint-disable-next-line react-hooks/exhaustive-deps
-		}, [key]);
-
 		const ready = stateTime > 0;
 		const needGet = remoteTime >= stateTime;
+
+		const sendState = useCallback((data) => {
+			setState(data);
+			setStateTime(Date.now());
+			setPostMessage(true);
+		}, []);
+
+		// Reset state on key change
+		useEffect(() => {
+			// Trigger effect on key change
+			noop(key);
+
+			setState(defaultStateRef.current);
+			setRemoteTime(0);
+			setStateTime(0);
+		}, [key]);
 
 		const channel = useMemo(() => new BroadcastChannel(channelId), [channelId]);
 
 		useEffect(() => {
-			setState(defaultState);
+			setState(defaultStateRef.current);
 			setStateTime(0);
 
 			const handleMessage = ({ data }: MessageEvent<number>) => {
@@ -108,16 +113,9 @@ export default function createSyncHooks(
 				channel.removeEventListener('message', handleMessage);
 				channel.close();
 			};
-			// Ignore defaultState changes like useState unless the channel changes too
-			// eslint-disable-next-line react-hooks/exhaustive-deps
 		}, [channel]);
 
-		const sendState = useCallback((data) => {
-			setState(data);
-			setStateTime(Date.now());
-			setPostMessage(true);
-		}, []);
-
+		// Post to channel
 		useEffect(() => {
 			if (!postMessage) return noop;
 
@@ -138,11 +136,12 @@ export default function createSyncHooks(
 			};
 		}, [channel, key, state, stateTime, postMessage]);
 
+		// Get state from storage
 		useEffect(() => {
-			if (!needGet) return noop;
+			// Trigger effect on stateTime change
+			noop(stateTime);
 
-			// Keep this to trigger start over on stateTime change
-			if (stateTime < 0) return noop;
+			if (!needGet) return noop;
 
 			let cancel;
 			(async () => {
