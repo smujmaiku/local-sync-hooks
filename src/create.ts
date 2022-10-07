@@ -4,7 +4,7 @@
  * MIT Licensed
  */
 
-import { useRef, useMemo, useCallback, useState, useEffect } from 'react';
+import { useRef, useCallback, useState, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import * as localforage from 'localforage';
 
@@ -71,12 +71,13 @@ export default function createSyncHooks(
 		const defaultStateRef = useRef<T>(defaultState);
 		defaultStateRef.current = defaultState;
 
-		const channelId = `${name}:${key}`;
-
 		const [state, setState] = useState<T>(defaultState);
 		const [postMessage, setPostMessage] = useState<boolean>(false);
 		const [remoteTime, setRemoteTime] = useState<number>(0);
 		const [stateTime, setStateTime] = useState<number>(0);
+		const [channel, setChannel] = useState<BroadcastChannel | undefined>(
+			undefined
+		);
 
 		const ready = stateTime > 0;
 		const needGet = remoteTime >= stateTime;
@@ -97,27 +98,31 @@ export default function createSyncHooks(
 			setStateTime(0);
 		}, [key]);
 
-		const channel = useMemo(() => new BroadcastChannel(channelId), [channelId]);
-
+		// Setup broadcast channel
 		useEffect(() => {
 			setState(defaultStateRef.current);
+
+			const channelId = `${name}:${key}`;
+			const chan = new BroadcastChannel(channelId);
+			setChannel(chan);
 			setStateTime(0);
 
 			const handleMessage = ({ data }: MessageEvent<number>) => {
 				setRemoteTime((t) => Math.max(t, data));
 			};
 
-			channel.addEventListener('message', handleMessage);
+			chan.addEventListener('message', handleMessage);
 
 			return () => {
-				channel.removeEventListener('message', handleMessage);
-				channel.close();
+				setChannel(undefined);
+				chan.removeEventListener('message', handleMessage);
+				chan.close();
 			};
-		}, [channel]);
+		}, [key]);
 
 		// Post to channel
 		useEffect(() => {
-			if (!postMessage) return noop;
+			if (!channel || !postMessage) return noop;
 
 			let cancel;
 			(async () => {
