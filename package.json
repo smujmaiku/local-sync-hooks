@@ -1,6 +1,6 @@
 {
   "name": "local-sync-hooks",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Local Sync hooks",
   "main": "lib/sync.js",
   "types": "lib/sync.d.ts",

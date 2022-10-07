@@ -52,7 +52,7 @@ export function createSyncHooks(
 	store: LocalForage
 ): CreateSyncHooksI;
 
-export default function createSyncHooks(
+export function createSyncHooks(
 	name: string,
 	store: LocalForage | undefined = undefined
 ): CreateSyncHooksI {
@@ -203,3 +203,5 @@ export default function createSyncHooks(
 		useSyncReducer,
 	};
 }
+
+export default createSyncHooks;
