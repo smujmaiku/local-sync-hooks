@@ -6,6 +6,13 @@
 
 import createSyncHooks from './create';
 
+export type {
+	SyncReducerT,
+	UseSyncStateT,
+	UseSyncReducerT,
+	CreateSyncHooksI,
+} from './create';
+
 const PACKAGE_NAME = 'localSyncHooks';
 
 const { useSyncState, useSyncReducer } = createSyncHooks(PACKAGE_NAME);
