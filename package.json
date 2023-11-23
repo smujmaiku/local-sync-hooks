@@ -1,12 +1,9 @@
 {
   "name": "local-sync-hooks",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Local Sync hooks",
-  "main": "lib/sync.js",
-  "types": "lib/sync.d.ts",
-  "directories": {
-    "lib": "lib"
-  },
+  "main": "build/sync.js",
+  "types": "build/sync.d.ts",
   "scripts": {
     "start": "npm run storybook",
     "prebuild": "rimraf ./build",
